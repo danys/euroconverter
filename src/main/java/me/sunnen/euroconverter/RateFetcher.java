@@ -1,58 +1,29 @@
 package me.sunnen.euroconverter;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RateFetcher
 {
-	@Scheduled(cron = "10 15 * * MON-FRI")
+	private final String fileName = "eurofxref-daily.xml";
+	private final String fileURL = "http://www.ecb.europa.eu/stats/eurofxref/"+fileName;
+	
+	@Scheduled(cron = "0 10 15 * * MON-FRI") //Get the rates every work day (MON-FRI) at 15:10
     public void fetchRatesAndUpdate()
 	{
-        //Get file: http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml
-		FileOutputStream fos = null;
+		//Try to retrieve the XML file with the daily rates
+		FileDownloader fileDownloader;
 		try
 		{
-			URL url = new URL("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml");
-			ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-			fos = new FileOutputStream("eurofxref-daily.xml");
-			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+			fileDownloader = new FileDownloader(fileURL,fileName);
 		}
-		catch(MalformedURLException e)
+		catch (Exception e)
 		{
-			System.out.println("Exception: URL is malformed!");
+			System.out.println("Exception: Could not retrieve the rates");
 			return;
-		}
-		catch(IOException e)
-		{
-			System.out.println("Exception: IO problem!");
-			//TODO might retry a couple of times
-			return;
-		}
-		finally
-		{
-			if (fos!=null)
-			try
-			{
-				fos.close();
-			}
-			catch (IOException e)
-			{
-				System.out.println("Exception: Error closing output stream!");
-			}
 		}
 		//Update the rate hash map
-		File file = new File("eurofxref-daily.xml");
-    	RateController.fillMap(file,RateController.getLatestDate().toString());
-    	//Update earliest and latest dates
-    	//TODO
+		RateController.ratesContainer.addEntriesFromFile(fileDownloader.getFile(), true);
     }
 }
