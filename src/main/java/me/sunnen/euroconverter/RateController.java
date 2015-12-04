@@ -44,4 +44,16 @@ public class RateController
     {
     	return ratesContainer.getRate(currency, date);
     }
+    
+    @RequestMapping(value="/currencies", method=RequestMethod.GET)
+    public String[] getCurrencies()
+    {
+    	return ratesContainer.getCurrencies();
+    }
+    
+    @RequestMapping(value="/dates", method=RequestMethod.GET)
+    public String[] getDates()
+    {
+    	return ratesContainer.getDates();
+    }
 }
