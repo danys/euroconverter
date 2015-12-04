@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -184,5 +186,45 @@ public class RatesContainer
  				}
  			}
 		}
+	}
+	
+	public String[] getCurrencies()
+	{
+		String result[];
+		Map<String,String> map;
+		synchronized(this)
+		{
+			map = rateMap.get(latestDate.toString());
+		}
+		int size = map.size();
+		result = new String[size];
+		Set<String> set = map.keySet();
+		Iterator<String> it = set.iterator();
+		int i=0;
+		while(it.hasNext())
+		{
+			result[i] = it.next();
+			i++;
+		}
+		return result;
+	}
+	
+	public String[] getDates()
+	{
+		String result[];
+		synchronized(this)
+		{
+			Set<String> set = rateMap.keySet();
+			int size = set.size();
+			result = new String[size];
+			Iterator<String> it = set.iterator();
+			int i=0;
+			while(it.hasNext())
+			{
+				result[i] = it.next();
+				i++;
+			}
+		}
+		return result;
 	}
 }
