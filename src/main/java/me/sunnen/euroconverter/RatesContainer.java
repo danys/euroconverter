@@ -37,7 +37,7 @@ public class RatesContainer
 	{
 		rateMap = new HashMap<String,Map<String,String>>();
 		earliestDate = LocalDate.now();
-		latestDate = LocalDate.now();
+		latestDate = LocalDate.of(2000, 1, 1);
 	}
 	
 	public void addEntriesFromFile(File file, boolean removeEarliestKey)
